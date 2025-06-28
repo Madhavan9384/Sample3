@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shopping Cart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    nav {
+      background: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      color: #fff;
+      margin-left: 15px;
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    th {
+      background: #333;
+      color: #fff;
+    }
+    img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+    }
+    .btn {
+      padding: 6px 10px;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+    }
+    .btn-update {
+      background: #f0ad4e;
+    }
+    .btn-remove {
+      background: #dc3545;
+    }
+    .btn-continue {
+      background: #f0ad4e;
+      margin-right: 10px;
+    }
+    .btn-checkout {
+      background: #007bff;
+    }
+    .total-row {
+      font-weight: bold;
+    }
+    .actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div><strong>Foodies</strong></div>
+    <div>
+      <a href="#">Add Products</a>
+      <a href="#">View Products</a>
+      <a href="#">Cart (<span id="cart-count">0</span>)</a>
+    </div>
+  </nav>
+  <div class="container">
+    <h2>Shopping Cart</h2>
+    <table id="cart-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total Price</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      <tfoot>
+        <tr class="total-row">
+          <td colspan="4">Grand Total</td>
+          <td colspan="2" id="grand-total">$0</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="actions">
+      <button class="btn btn-continue" onclick="continueShopping()">Continue Shopping</button>
+      <button class="btn btn-remove" onclick="clearCart()">Delete All</button>
+      <button class="btn btn-checkout" onclick="checkout()">Proceed To Checkout</button>
+    </div>
+  </div>
+  <script>
+    const products = [
+      {id:1, name:"Cheezy Pizza", price:20, image:"https://via.placeholder.com/50"},
+      {id:2, name:"Hamburger", price:25, image:"https://via.placeholder.com/50"},
+      {id:3, name:"Ham Sandwich", price:16, image:"https://via.placeholder.com/50"}
+    ];
+    let cart = [
+      {productId:1, quantity:1},
+      {productId:2, quantity:3},
+      {productId:3, quantity:2}
+    ];
+    function renderCart() {
+      const tbody = document.querySelector("#cart-table tbody");
+      tbody.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        const product = products.find(p => p.id === item.productId);
+        const row = document.createElement("tr");
+        const itemTotal = product.price * item.quantity;
+        total += itemTotal;
+        row.innerHTML = `
+          <td><img src="${product.image}" alt="${product.name}"></td>
+          <td>${product.name}</td>
+          <td>$${product.price}</td>
+          <td>
+            <input type="number" value="${item.quantity}" min="1" id="qty-${item.productId}" style="width:50px;">
+            <button class="btn btn-update" onclick="updateQuantity(${item.productId})">Update</button>
+          </td>
+          <td>$${itemTotal}</td>
+          <td><button class="btn btn-remove" onclick="removeItem(${item.productId})">Remove</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+      document.getElementById("grand-total").textContent = "$" + total;
+      document.getElementById("cart-count").textContent = cart.reduce((sum,i)=>sum+i.quantity,0);
+    }
+    function updateQuantity(id) {
+      const qty = parseInt(document.getElementById("qty-"+id).value);
+      if (qty <=0) {
+        removeItem(id);
+        return;
+      }
+      const item = cart.find(i=>i.productId===id);
+      if(item){
+        item.quantity = qty;
+      }
+      renderCart();
+    }
+    function removeItem(id) {
+      cart = cart.filter(i=>i.productId!==id);
+      renderCart();
+    }
+    function clearCart() {
+      if(confirm("Delete all items?")) {
+        cart = [];
+        renderCart();
+      }
+    }
+    function continueShopping() {
+      alert("Redirecting to products page...");
+    }
+    function checkout() {
+      alert("Proceeding to checkout...");
+    }
+    // Initialize
+    renderCart();
+  </script>
+</body>
+</html>
